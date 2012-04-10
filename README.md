@@ -29,7 +29,7 @@ Documentation
 
 * Add Build Step in TeamCity:
 
-    phpunit --printer PHPUnit_Extensions_TeamCity_TestListener
+    `phpunit --printer PHPUnit_Extensions_TeamCity_TestListener`
 
 * Press "Run..." button in TeamCity.
 * Now build will display executed tests in realtime in "Overview" screen

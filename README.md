@@ -27,9 +27,9 @@ After the installation you can find source files inside your local PEAR director
 Documentation
 -------------
 
-* Add Build Step in TeamCity:
+Add Build Step in TeamCity:
 
-    `phpunit --printer PHPUnit_Extensions_TeamCity_TestListener`
+    phpunit --printer PHPUnit_Extensions_TeamCity_TestListener
 
-* Press "Run..." button in TeamCity.
-* Now build will display executed tests in realtime in "Overview" screen
+Press "Run..." button in TeamCity.
+Now build will display executed tests in realtime in "Overview" screen

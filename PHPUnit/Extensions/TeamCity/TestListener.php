@@ -17,11 +17,37 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
     public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)
     {
         $message = sprintf("##teamcity[testFailed name='%s' message='%s' details='%s']" . PHP_EOL,
-            addslashes($test->getName()),
-            addslashes($e->getMessage()),
-            addslashes($e->getTraceAsString())
+            $this->addslashes($test->getName()),
+            $this->addslashes($e->getMessage()),
+            $this->addslashes($e->getTraceAsString())
         );
         $this->write($message);
+    }
+
+    protected function addslashes($string){
+         $search = array(
+             "|",
+             "'",
+             "\n",
+             "\r",
+             "\u0085",
+             "\u2028",
+             "\u2029",
+             "[",
+             "]",
+         );
+         $replace = array(
+             "||",
+             "|'",
+             "|n",
+             "|r",
+             "|x",
+             "|l",
+             "|p",
+             "|[",
+             "|]",
+         );
+         return str_replace($search, $replace, $string);
     }
 
     /**
@@ -41,13 +67,21 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
             /** @var $exception PHPUnit_Framework_ExpectationFailedException */
             $exception         = $failure->thrownException();
             $comparisonFailure = $exception->getComparisonFailure();
-            $message           = sprintf("##teamcity[testFailed type='comparisonFailure' name='%s' message='%s' details='%s' expected='%s' actual='%s']" . PHP_EOL,
-                addslashes($test->getName()),
-                addslashes($e->getMessage()),
-                addslashes($e->getTraceAsString()),
-                addslashes($comparisonFailure->getExpectedAsString()),
-                addslashes($comparisonFailure->getActualAsString())
-            );
+            if ($comparisonFailure instanceof PHPUnit_Framework_ComparisonFailure) {
+                $message = sprintf("##teamcity[testFailed type='comparisonFailure' name='%s' message='%s' details='%s' expected='%s' actual='%s']" . PHP_EOL,
+                    $this->addslashes($test->getName()),
+                    $this->addslashes($e->getMessage()),
+                    $this->addslashes($e->getTraceAsString()),
+                    $this->addslashes($comparisonFailure->getExpectedAsString()),
+                    $this->addslashes($comparisonFailure->getActualAsString())
+                );
+            } else {
+                $message = sprintf("##teamcity[testFailed type='comparisonFailure' name='%s' message='%s' details='%s']" . PHP_EOL,
+                    $this->addslashes($test->getName()),
+                    $this->addslashes($e->getMessage()),
+                    $this->addslashes($e->getTraceAsString())
+                );
+            }
             $this->write($message);
         }
     }
@@ -64,8 +98,8 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
     public function addIncompleteTest(PHPUnit_Framework_Test $test, Exception $e, $time)
     {
         $message = sprintf("##teamcity[testIgnored name='%s' message='%s']" . PHP_EOL,
-            addslashes($test->getName()),
-            addslashes($e->getMessage())
+            $this->addslashes($test->getName()),
+            $this->addslashes($e->getMessage())
         );
         $this->write($message);
     }
@@ -84,8 +118,8 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
     public function addSkippedTest(PHPUnit_Framework_Test $test, Exception $e, $time)
     {
         $message = sprintf("##teamcity[testIgnored name='%s' message='%s']" . PHP_EOL,
-            addslashes($test->getName()),
-            addslashes($e->getMessage())
+            $this->addslashes($test->getName()),
+            $this->addslashes($e->getMessage())
         );
         $this->write($message);
     }
@@ -100,7 +134,7 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
     public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
     {
         $message = sprintf("##teamcity[testSuiteStarted name='%s']" . PHP_EOL,
-            addslashes($suite->getName())
+            $this->addslashes($suite->getName())
         );
         $this->write($message);
     }
@@ -115,7 +149,7 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
     public function endTestSuite(PHPUnit_Framework_TestSuite $suite)
     {
         $message = sprintf("##teamcity[testSuiteFinished name='%s']" . PHP_EOL,
-            addslashes($suite->getName())
+            $this->addslashes($suite->getName())
         );
         $this->write($message);
     }
@@ -130,7 +164,7 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
     public function startTest(PHPUnit_Framework_Test $test)
     {
         $message = sprintf("##teamcity[testStarted name='%s' captureStandardOutput='%s']" . PHP_EOL,
-            addslashes($test->getName()),
+            $this->addslashes($test->getName()),
             'true'
         );
         $this->write($message);
@@ -147,7 +181,7 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
     public function endTest(PHPUnit_Framework_Test $test, $time)
     {
         $message = sprintf("##teamcity[testFinished name='%s' duration='%s']" . PHP_EOL,
-            addslashes($test->getName()),
+            $this->addslashes($test->getName()),
             $time
         );
         $this->write($message);

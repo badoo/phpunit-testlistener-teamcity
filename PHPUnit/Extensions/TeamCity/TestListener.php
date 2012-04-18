@@ -61,9 +61,14 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
      */
     public function addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e, $time)
     {
+        $failures = array();
         $testResult = $test->getTestResultObject();
         /** @var $failure PHPUnit_Framework_TestFailure */
         foreach ($testResult->failures() as $failure) {
+            $hash = "$e->getMessage() $e->getTraceAsString()";
+            if(isset($failures[$hash])){
+                continue;
+            }
             /** @var $exception PHPUnit_Framework_ExpectationFailedException */
             $exception         = $failure->thrownException();
             $comparisonFailure = $exception->getComparisonFailure();
@@ -83,6 +88,7 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
                 );
             }
             $this->write($message);
+            $failures[$hash] = true;
         }
     }
 

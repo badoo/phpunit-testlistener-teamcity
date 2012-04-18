@@ -11,7 +11,7 @@
     <active>yes</active>
   </lead>
   <date>2012-04-18</date>
-  <time>20:38:51</time>
+  <time>21:14:59</time>
   <version>
     <release>0.1.1</release>
     <api>0.1.0</api>
@@ -23,12 +23,15 @@
   <license uri="http://www.opensource.org/licenses/mit-license.html">MIT</license>
   <notes>Updates after internal testing</notes>
   <contents>
-    <dir name="/" baseinstalldir="PHPUnit">
+    <dir name="/" baseinstalldir="PHPUnit_TestListener_TeamCity">
+      <file name=".gitignore" role="php" md5sum="50d60fefb7ebd63f6aba6682026a4bc8"/>
       <dir name="Extensions">
-          <dir name="TeamCity">
-            <file name="TestListener.php" role="php" md5sum="c968054c8117ba82a2ea6136ef7ec579"/>
-          </dir>
+        <dir name="TeamCity">
+          <file name="TestListener.php" role="php" md5sum="c968054c8117ba82a2ea6136ef7ec579"/>
+        </dir>
       </dir>
+      <file name="README.md" role="php" md5sum="984349d9c410e44564dd6b1d60ca1ecf"/>
+      <file name="package.xml" role="php" md5sum="9bcd0a44ddd10e4daa2a2becaeeefc8d"/>
     </dir>
   </contents>
   <dependencies>

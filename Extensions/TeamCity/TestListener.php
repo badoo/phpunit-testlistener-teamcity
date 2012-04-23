@@ -5,6 +5,39 @@
  */
 class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_TestListener
 {
+    const MESSAGE_SUITE_STARTED = 'testSuiteStarted';
+
+    const MESSAGE_TEST_STARTED = 'testStarted';
+
+    const MESSAGE_TEST_FAILED = 'testFailed';
+
+    const MESSAGE_TEST_IGNORED = 'testIgnored';
+
+    const MESSAGE_TEST_FINISHED = 'testFinished';
+
+    const MESSAGE_COMPARISON_FAILURE = 'comparisonFailure';
+
+    const MESSAGE_SUITE_FINISHED = 'testSuiteFinished';
+
+    /**
+     * @param $type
+     * @param array $array
+     * @return string
+     */
+    protected function getServiceMessage($type, array $array){
+        $params = array(
+            'timestamp' => date('c'),
+            'flowId' => getmypid(),
+        );
+        $params += $array;
+        $message = "##teamcity[{$type}";
+        foreach ($params as $name => $value) {
+            $message .= " $name='{$this->addSlashes($value)}'";
+        }
+        $message .= "]" . PHP_EOL;
+        return $message;
+    }
+
     /**
      * An error occurred.
      *
@@ -16,15 +49,19 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
      */
     public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)
     {
-        $message = sprintf("##teamcity[testFailed name='%s' message='%s' details='%s']" . PHP_EOL,
-            $this->addslashes($test->getName()),
-            $this->addslashes($e->getMessage()),
-            $this->addslashes($e->getTraceAsString())
-        );
+        $message = $this->getServiceMessage(self::MESSAGE_TEST_FAILED, array(
+            'name' => $test->getName(),
+            'message' => $e->getMessage(),
+            'details' => $e->getTraceAsString(),
+        ));
         $this->write($message);
     }
 
-    protected function addslashes($string){
+    /**
+     * @param $string
+     * @return mixed
+     */
+    protected function addSlashes($string){
          $search = array(
              "|",
              "'",
@@ -65,28 +102,28 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
         $testResult = $test->getTestResultObject();
         /** @var $failure PHPUnit_Framework_TestFailure */
         foreach ($testResult->failures() as $failure) {
-            $hash = "$e->getMessage() $e->getTraceAsString()";
+            $hash = "{$e->getMessage()} {$e->getTraceAsString()}";
             if(isset($failures[$hash])){
                 continue;
             }
+
+            $array   = array(
+                'type'     => self::MESSAGE_COMPARISON_FAILURE,
+                'name'     => $test->getName(),
+                'message'  => $e->getMessage(),
+                'details'  => $e->getTraceAsString(),
+            );
+
             /** @var $exception PHPUnit_Framework_ExpectationFailedException */
             $exception         = $failure->thrownException();
             $comparisonFailure = $exception->getComparisonFailure();
             if ($comparisonFailure instanceof PHPUnit_Framework_ComparisonFailure) {
-                $message = sprintf("##teamcity[testFailed type='comparisonFailure' name='%s' message='%s' details='%s' expected='%s' actual='%s']" . PHP_EOL,
-                    $this->addslashes($test->getName()),
-                    $this->addslashes($e->getMessage()),
-                    $this->addslashes($e->getTraceAsString()),
-                    $this->addslashes($comparisonFailure->getExpectedAsString()),
-                    $this->addslashes($comparisonFailure->getActualAsString())
-                );
-            } else {
-                $message = sprintf("##teamcity[testFailed type='comparisonFailure' name='%s' message='%s' details='%s']" . PHP_EOL,
-                    $this->addslashes($test->getName()),
-                    $this->addslashes($e->getMessage()),
-                    $this->addslashes($e->getTraceAsString())
+                $array += array(
+                    'expected' => $comparisonFailure->getExpectedAsString(),
+                    'actual'   => $comparisonFailure->getActualAsString(),
                 );
             }
+            $message = $this->getServiceMessage(self::MESSAGE_TEST_FAILED, $array);
             $this->write($message);
             $failures[$hash] = true;
         }
@@ -103,10 +140,10 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
      */
     public function addIncompleteTest(PHPUnit_Framework_Test $test, Exception $e, $time)
     {
-        $message = sprintf("##teamcity[testIgnored name='%s' message='%s']" . PHP_EOL,
-            $this->addslashes($test->getName()),
-            $this->addslashes($e->getMessage())
-        );
+        $message = $this->getServiceMessage(self::MESSAGE_TEST_IGNORED, array(
+            'name' => $test->getName(),
+            'message' => $e->getMessage(),
+        ));
         $this->write($message);
     }
 
@@ -123,10 +160,10 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
      */
     public function addSkippedTest(PHPUnit_Framework_Test $test, Exception $e, $time)
     {
-        $message = sprintf("##teamcity[testIgnored name='%s' message='%s']" . PHP_EOL,
-            $this->addslashes($test->getName()),
-            $this->addslashes($e->getMessage())
-        );
+        $message = $this->getServiceMessage(self::MESSAGE_TEST_IGNORED, array(
+            'name' => $test->getName(),
+            'message' => $e->getMessage(),
+        ));
         $this->write($message);
     }
 
@@ -139,9 +176,9 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
      */
     public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
     {
-        $message = sprintf("##teamcity[testSuiteStarted name='%s']" . PHP_EOL,
-            $this->addslashes($suite->getName())
-        );
+        $message = $this->getServiceMessage(self::MESSAGE_SUITE_STARTED, array(
+            'name' => $suite->getName(),
+        ));
         $this->write($message);
     }
 
@@ -154,9 +191,9 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
      */
     public function endTestSuite(PHPUnit_Framework_TestSuite $suite)
     {
-        $message = sprintf("##teamcity[testSuiteFinished name='%s']" . PHP_EOL,
-            $this->addslashes($suite->getName())
-        );
+        $message = $this->getServiceMessage(self::MESSAGE_SUITE_FINISHED, array(
+            'name' => $suite->getName(),
+        ));
         $this->write($message);
     }
 
@@ -169,10 +206,10 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
      */
     public function startTest(PHPUnit_Framework_Test $test)
     {
-        $message = sprintf("##teamcity[testStarted name='%s' captureStandardOutput='%s']" . PHP_EOL,
-            $this->addslashes($test->getName()),
-            'true'
-        );
+        $message = $this->getServiceMessage(self::MESSAGE_TEST_STARTED, array(
+            'name' => $test->getName(),
+            'captureStandardOutput' => 'true',
+        ));
         $this->write($message);
     }
 
@@ -186,10 +223,10 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
      */
     public function endTest(PHPUnit_Framework_Test $test, $time)
     {
-        $message = sprintf("##teamcity[testFinished name='%s' duration='%s']" . PHP_EOL,
-            $this->addslashes($test->getName()),
-            $time
-        );
+        $message = $this->getServiceMessage(self::MESSAGE_TEST_FINISHED, array(
+            'name' => $test->getName(),
+            'duration' => $time,
+        ));
         $this->write($message);
     }
 }

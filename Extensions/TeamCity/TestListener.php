@@ -25,8 +25,10 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
      * @return string
      */
     protected function getServiceMessage($type, array $array){
+        list($usec, $sec) = explode(" ", microtime());
+        $msec = floor($usec * 1000);
         $params = array(
-            'timestamp' => date('c'),
+            'timestamp' => date("Y-m-d\TH:i:s.{$msec}O", $sec),
             'flowId' => getmypid(),
         );
         $params += $array;

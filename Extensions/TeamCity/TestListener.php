@@ -118,7 +118,7 @@ class PHPUnit_Extensions_TeamCity_TestListener extends PHPUnit_Util_Printer impl
 
             /** @var $exception PHPUnit_Framework_ExpectationFailedException */
             $exception         = $failure->thrownException();
-            $comparisonFailure = $exception->getComparisonFailure();
+            $comparisonFailure = ($exception instanceof PHPUnit_Framework_ExpectationFailedException ? $exception->getComparisonFailure() : null);
             if ($comparisonFailure instanceof PHPUnit_Framework_ComparisonFailure) {
                 $array += array(
                     'expected' => $comparisonFailure->getExpectedAsString(),

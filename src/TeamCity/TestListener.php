@@ -66,8 +66,8 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     protected function formatName($name)
     {
         return str_replace(
-            array('.', '\\', '::', ' with data set'),
-            array('_', '.', '.', '.with data set'),
+            array('.', '\\', '::', ' with data set', ':'),
+            array('_', '.', '.', '.with data set', '_'),
             $name
         );
     }

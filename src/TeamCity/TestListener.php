@@ -24,22 +24,23 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     const MESSAGE_SUITE_FINISHED = 'testSuiteFinished';
 
     /**
-     * @param $type
+     * @param string $type
+     * @param PHPUnit_Framework_Test $test
      * @param array $array
      * @return string
      */
-    protected function getServiceMessage($type, array $array)
+    protected function getServiceMessage($type, PHPUnit_Framework_Test $test, array $params = array())
     {
-        list($usec, $sec) = explode(" ", microtime());
+        list($usec, $sec) = explode(' ', microtime());
         $msec = floor($usec * 1000);
-        $params = array(
+        $params += array(
             'timestamp' => date("Y-m-d\\TH:i:s.{$msec}O", $sec),
-            'flowId' => getmypid(),
+            'flowId' => $this->getFlowId($test),
+            'name' => $this->getTestName($test),
         );
-        $params += $array;
         $message = "##teamcity[{$type}";
         foreach ($params as $name => $value) {
-            $message .= ' ' . $name . '=' . $this->addSlashes($value) . "'";
+            $message .= ' ' . $name . '=\'' . $this->addSlashes($value) . '\'';
         }
         $message .= "]" . PHP_EOL;
         return $message;
@@ -59,23 +60,12 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     }
 
     /**
-     * An error occurred.
-     *
-     * @param  PHPUnit_Framework_Test $test
-     * @param  Exception              $e
-     * @param  float                  $time
+     * @param PHPUnit_Framework_Test $test
+     * @return int
      */
-    public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)
+    protected function getFlowId(PHPUnit_Framework_Test $test)
     {
-        $message = $this->getServiceMessage(
-            self::MESSAGE_TEST_FAILED,
-            array(
-                'name' => $this->getTestName($test),
-                'message' => $e->getMessage(),
-                'details' => $e->getTraceAsString(),
-            )
-        );
-        $this->write($message);
+        return getmypid();
     }
 
     /**
@@ -110,6 +100,26 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     }
 
     /**
+     * An error occurred.
+     *
+     * @param  PHPUnit_Framework_Test $test
+     * @param  Exception              $e
+     * @param  float                  $time
+     */
+    public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        $message = $this->getServiceMessage(
+            self::MESSAGE_TEST_FAILED,
+            $test,
+            array(
+                'message' => $e->getMessage(),
+                'details' => $e->getTraceAsString(),
+            )
+        );
+        $this->write($message);
+    }
+
+    /**
      * A failure occurred.
      *
      *
@@ -123,14 +133,13 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
         $testResult = $test->getTestResultObject();
         /** @var $failure PHPUnit_Framework_TestFailure */
         foreach ($testResult->failures() as $failure) {
-            $hash = $e->getMessage() . ' ' . $e->getTraceAsString();
+            $hash = md5($e->getMessage() . ' ' . $e->getTraceAsString());
             if (isset($failures[$hash])) {
                 continue;
             }
 
             $array = array(
                 'type'     => self::MESSAGE_COMPARISON_FAILURE,
-                'name'     => $this->getTestName($test),
                 'message'  => $e->getMessage(),
                 'details'  => $e->getTraceAsString(),
             );
@@ -138,13 +147,15 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
             $thrownException = $failure->thrownException();
             if ($thrownException instanceof PHPUnit_Framework_ExpectationFailedException) {
                 $comparisonFailure = $thrownException->getComparisonFailure();
-                $array += array(
-                    'expected' => $comparisonFailure->getExpectedAsString(),
-                    'actual' => $comparisonFailure->getActualAsString(),
-                );
+                if (null !== $comparisonFailure) {
+                    $array += array(
+                        'expected' => $comparisonFailure->getExpectedAsString(),
+                        'actual' => $comparisonFailure->getActualAsString(),
+                    );
+                }
             }
 
-            $message = $this->getServiceMessage(self::MESSAGE_TEST_FAILED, $array);
+            $message = $this->getServiceMessage(self::MESSAGE_TEST_FAILED, $test, $array);
             $this->write($message);
             $failures[$hash] = true;
         }
@@ -161,8 +172,8 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     {
         $message = $this->getServiceMessage(
             self::MESSAGE_TEST_IGNORED,
+            $test,
             array(
-                'name' => $this->getTestName($test),
                 'message' => $e->getMessage(),
             )
         );
@@ -182,8 +193,8 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     {
         $message = $this->getServiceMessage(
             self::MESSAGE_TEST_IGNORED,
+            $test,
             array(
-                'name' => $this->getTestName($test),
                 'message' => $e->getMessage(),
             )
         );
@@ -201,9 +212,7 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     {
         $message = $this->getServiceMessage(
             self::MESSAGE_SUITE_STARTED,
-            array(
-                'name' => $suite->getName(),
-            )
+            $suite
         );
         $this->write($message);
     }
@@ -219,9 +228,7 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     {
         $message = $this->getServiceMessage(
             self::MESSAGE_SUITE_FINISHED,
-            array(
-                'name' => $suite->getName(),
-            )
+            $suite
         );
         $this->write($message);
     }
@@ -235,8 +242,8 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     {
         $message = $this->getServiceMessage(
             self::MESSAGE_TEST_STARTED,
+            $test,
             array(
-                'name' => $this->getTestName($test),
                 'captureStandardOutput' => 'true',
             )
         );
@@ -253,8 +260,8 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     {
         $message = $this->getServiceMessage(
             self::MESSAGE_TEST_FINISHED,
+            $test,
             array(
-                'name' => $this->getTestName($test),
                 'duration' => $time,
             )
         );

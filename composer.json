@@ -1,0 +1,17 @@
+{
+    "name": "munkie/phpunit-teamcity-testlistener",
+    "description": "PHPUnit test listener for TeamCity CI Server",
+    "require": {
+        "phpunit/phpunit": "~3.7"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mikhail Shamin",
+            "email": "munk13@gmail.com"
+        }
+    ],
+    "autoload": {
+        "files": ["src/TeamCity/TestListener.php"]
+    }
+}

@@ -69,8 +69,8 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     }
 
     /**
-     * @param $string
-     * @return mixed
+     * @param string $string
+     * @return string
      */
     protected function addSlashes($string)
     {
@@ -102,9 +102,9 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     /**
      * An error occurred.
      *
-     * @param  PHPUnit_Framework_Test $test
-     * @param  Exception              $e
-     * @param  float                  $time
+     * @param PHPUnit_Framework_Test $test
+     * @param Exception $e
+     * @param float $time
      */
     public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)
     {
@@ -122,16 +122,15 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     /**
      * A failure occurred.
      *
-     *
-     * @param  PHPUnit_Framework_Test|\PHPUnit_Framework_TestCase $test
-     * @param  PHPUnit_Framework_AssertionFailedError $e
-     * @param  float $time
+     * @param PHPUnit_Framework_Test|PHPUnit_Framework_TestCase $test
+     * @param PHPUnit_Framework_AssertionFailedError $e
+     * @param float $time
      */
     public function addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e, $time)
     {
         $failures = array();
         $testResult = $test->getTestResultObject();
-        /** @var $failure PHPUnit_Framework_TestFailure */
+        /* @var $failure PHPUnit_Framework_TestFailure */
         foreach ($testResult->failures() as $failure) {
             $hash = md5($e->getMessage() . ' ' . $e->getTraceAsString());
             if (isset($failures[$hash])) {
@@ -164,9 +163,9 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     /**
      * Incomplete test.
      *
-     * @param  PHPUnit_Framework_Test $test
-     * @param  Exception              $e
-     * @param  float                  $time
+     * @param PHPUnit_Framework_Test $test
+     * @param Exception $e
+     * @param float $time
      */
     public function addIncompleteTest(PHPUnit_Framework_Test $test, Exception $e, $time)
     {
@@ -183,11 +182,9 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     /**
      * Skipped test.
      *
-     * @param  PHPUnit_Framework_Test $test
-     * @param  Exception              $e
-     * @param  float                  $time
-     *
-     * @since  Method available since Release 3.0.0
+     * @param PHPUnit_Framework_Test $test
+     * @param Exception $e
+     * @param float $time
      */
     public function addSkippedTest(PHPUnit_Framework_Test $test, Exception $e, $time)
     {
@@ -204,9 +201,7 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     /**
      * A test suite started.
      *
-     * @param  PHPUnit_Framework_TestSuite $suite
-     *
-     * @since  Method available since Release 2.2.0
+     * @param PHPUnit_Framework_TestSuite $suite
      */
     public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
     {
@@ -220,9 +215,7 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     /**
      * A test suite ended.
      *
-     * @param  PHPUnit_Framework_TestSuite $suite
-     *
-     * @since  Method available since Release 2.2.0
+     * @param PHPUnit_Framework_TestSuite $suite
      */
     public function endTestSuite(PHPUnit_Framework_TestSuite $suite)
     {
@@ -236,7 +229,7 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     /**
      * A test started.
      *
-     * @param  PHPUnit_Framework_Test $test
+     * @param PHPUnit_Framework_Test $test
      */
     public function startTest(PHPUnit_Framework_Test $test)
     {
@@ -253,8 +246,8 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     /**
      * A test ended.
      *
-     * @param  PHPUnit_Framework_Test     $test
-     * @param  float                      $time
+     * @param PHPUnit_Framework_Test $test
+     * @param float $time
      */
     public function endTest(PHPUnit_Framework_Test $test, $time)
     {

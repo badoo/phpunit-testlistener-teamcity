@@ -53,10 +53,23 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     protected function getTestName(PHPUnit_Framework_Test $test)
     {
         if ($test instanceof PHPUnit_Framework_SelfDescribing) {
-            return $test->toString();
+            $name = $test->toString();
         } else {
-            return get_class($test);
+            $name = get_class($test);
         }
+        return $this->formatName($name);
+    }
+
+    /**
+     * @param string $name
+     */
+    protected function formatName($name)
+    {
+        return str_replace(
+            array('.', '\\', '::', ' with data set'),
+            array('_', '.', '.', '.with data set'),
+            $name
+        );
     }
 
     /**
@@ -74,29 +87,11 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
      */
     protected function addSlashes($string)
     {
-        $search = array(
-            "|",
-            "'",
-            "\n",
-            "\r",
-            "\u0085",
-            "\u2028",
-            "\u2029",
-            "[",
-            "]",
+        return str_replace(
+            array("|", "'", "\n", "\r", "\u0085", "\u2028", "\u2029", "[","]"),
+            array("||", "|'", "|n", "|r", "|x", "|l", "|p", "|[", "|]"),
+            $string
         );
-        $replace = array(
-            "||",
-            "|'",
-            "|n",
-            "|r",
-            "|x",
-            "|l",
-            "|p",
-            "|[",
-            "|]",
-        );
-        return str_replace($search, $replace, $string);
     }
 
     /**

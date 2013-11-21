@@ -1,7 +1,7 @@
 PHPUnit TeamCity TestListener
 ========================================
 
-`PHPUnit TeamCity TestListener` is extension for integration PHPUnit and TeamCity. Based on PHPUnit's TestListener feature and TeamCity's Service Messages providing fast and easy test reporting during build process.
+`PHPUnit TeamCity TestListener` is extension for integration [PHPUnit](http://phpunit.de) and [TeamCity](http://www.jetbrains.com/teamcity/) continious integration server. Based on PHPUnit's TestListener feature and TeamCity's Service Messages providing fast and easy test reporting during build process.
 
 Requirements
 ------------
@@ -12,7 +12,7 @@ Requirements
 Installation
 ------------
 
-Simply add a dependency on `munkie/phpunit-teamcity-testlistener` to your project's `composer.json` file if you use [Composer](http://http://getcomposer.org/) to manage the dependencies of your project.
+Simply add a dependency on `munkie/phpunit-teamcity-testlistener` to your project's `composer.json` file if you use [Composer](http://getcomposer.org/) to manage the dependencies of your project.
 Here is a minimal example of a `composer.json` file:
 
 ```json
@@ -28,7 +28,9 @@ Documentation
 
 Add Build Step in TeamCity:
 
-    phpunit --printer PHPUnit\\TeamCity\\TestListener
+```sh
+phpunit --printer PHPUnit\\TeamCity\\TestListener
+```
 
 Press "Run..." button in TeamCity.
 Now build will display executed tests in realtime in "Overview" screen

@@ -175,6 +175,19 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     }
 
     /**
+     * Risky test.
+     *
+     * @param PHPUnit_Framework_Test $test
+     * @param Exception $e
+     * @param float $time
+     * @since  Method available since Release 4.0.0
+     */
+    public function addRiskyTest(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        $this->addIncompleteTest($test, $e, $time);
+    }
+
+    /**
      * Skipped test.
      *
      * @param PHPUnit_Framework_Test $test

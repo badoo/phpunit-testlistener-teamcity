@@ -15,11 +15,6 @@ use Exception;
 
 class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_TestListener
 {
-    /**
-     * @var string
-     */
-    protected $captureStandardOutput = 'true';
-
     const MESSAGE_SUITE_STARTED = 'testSuiteStarted';
     const MESSAGE_TEST_STARTED = 'testStarted';
     const MESSAGE_TEST_FAILED = 'testFailed';
@@ -29,9 +24,14 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
     const MESSAGE_SUITE_FINISHED = 'testSuiteFinished';
 
     /**
+     * @var string
+     */
+    protected $captureStandardOutput = 'true';
+
+    /**
      * @param string $type
      * @param PHPUnit_Framework_Test $test
-     * @param array $array
+     * @param array $params
      * @return string
      */
     protected function getServiceMessage($type, PHPUnit_Framework_Test $test, array $params = array())
@@ -67,6 +67,7 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
 
     /**
      * @param string $name
+     * @return string
      */
     protected function formatName($name)
     {

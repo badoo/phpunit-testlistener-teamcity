@@ -15,6 +15,11 @@ use Exception;
 
 class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_TestListener
 {
+    /**
+     * @var string
+     */
+    protected $captureStandardOutput = 'true';
+
     const MESSAGE_SUITE_STARTED = 'testSuiteStarted';
     const MESSAGE_TEST_STARTED = 'testStarted';
     const MESSAGE_TEST_FAILED = 'testFailed';
@@ -245,7 +250,7 @@ class TestListener extends PHPUnit_Util_Printer implements PHPUnit_Framework_Tes
             self::MESSAGE_TEST_STARTED,
             $test,
             array(
-                'captureStandardOutput' => 'true',
+                'captureStandardOutput' => $this->captureStandardOutput,
             )
         );
         $this->write($message);

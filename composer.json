@@ -1,0 +1,27 @@
+{
+    "name": "munkie/phpunit-teamcity-testlistener",
+    "description": "PHPUnit test listener for TeamCity CI Server",
+    "require": {
+        "phpunit/phpunit": ">=3.7,<5.0"
+    },
+    "require-dev": {
+        "codeception/aspect-mock": "~0.5",
+        "scrutinizer/ocular": "~1.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mikhail Shamin",
+            "email": "munk13@gmail.com"
+        }
+    ],
+    "autoload": {
+        "files": ["src/PHPUnit/TeamCity/TestListener.php"],
+        "psr-4": {
+            "PHPUnit\\TeamCity\\Tests\\": "tests/PHPUnit/TeamCity/Tests"
+        }
+    },
+    "config": {
+        "bin-dir": "bin"
+    }
+}

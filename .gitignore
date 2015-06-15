@@ -1,2 +1,6 @@
-.idea
+/vendor/
+/.idea/
+/bin/
+/build/
 *.tgz
+composer.lock
